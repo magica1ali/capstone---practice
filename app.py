@@ -208,18 +208,4 @@ for i, row in corpus.iterrows():
     cleaned_document = remove_words_and_patterns(original_text, words_to_remove, patterns_to_remove)
     print(f"Cleaned document at index {i}")
 
-# Load the tokenizer and model for summarization
-tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
-model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn")
-
-# Function to summarize text
-def summarize_text(text):
-    inputs = tokenizer("summarize: " + text, return_tensors="pt", max_length=1024, truncation=True)
-    summary_ids = model.generate(inputs["input_ids"], max_length=300, min_length=50, length_penalty=2.0, num_beams=4, early_stopping=True)
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    return summary
-
-corpus['recommendations_summary'] = corpus['recommendations'].apply(summarize_text)
-corpus['orig_text_summary'] = corpus['original_text'].apply(summarize_text)
-
 st.dataframe(corpus)
