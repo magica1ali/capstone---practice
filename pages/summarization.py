@@ -1,3 +1,6 @@
+#Load Modules 
+import pandas as pd
+
 corpus = pd.DataFrame.from_dict(extracted_sections, orient='index', columns=['recommendations'])
 original_texts_df = pd.DataFrame.from_dict(original_texts, orient='index', columns=['original_text'])
 
