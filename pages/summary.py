@@ -27,6 +27,114 @@ import datetime
 
 ### Code 
 
+extracted_sections = {}
+original_texts = {}
+
+def remove_outreach(text):
+    # Find the index of "Outreach" in the text
+    outreach_index = text.lower().find("outreach")
+
+    if outreach_index != -1:
+        # Extract content after "Outreach"
+        cleaned_text = text[outreach_index:]
+        return cleaned_text
+    else:
+        return text
+
+def remove_rationale(text):
+    # Define the regular expression pattern
+    pattern = re.compile(r"rationale:(.*?)(comment:|$)", re.DOTALL)
+
+    # Remove rationale sections
+    text_without_rationale = re.sub(pattern, "comment:", text)
+
+    return text_without_rationale
+
+def remove_members(text):
+    # Find the index of "Members" in the text
+    members_index = text.lower().find("members")
+
+    if members_index != -1:
+        # Extract content after "Outreach"
+        cleaned_text = text[members_index:]
+        return cleaned_text
+    else:
+        return text
+
+documents = text_dict.items()
+
+# Define a regular expression pattern to match section headings
+pattern = r'Part\s*[IVX]+\s+.*'  # Pattern to match headings like "PART I" or "PART II: Heading"
+
+# Loop through the list of document texts
+for document_name, document_text in documents:
+    # Exception handling for reports from the 90s with a different format
+    if re.search(r'199\d', document_name, re.IGNORECASE):
+        pattern_part_iii = r'part iii \n'
+        # Search for the pattern in the text
+        match = re.search(pattern_part_iii, document_text.lower())
+        start_index = match.start()
+        end_index = document_text.lower().find('part iv', start_index)  # Case-insensitive search
+        #1996 report
+        if start_index != -1 and end_index != -1:
+            #remove outreach, rationale, and comments sections using previously defined function
+            recommendations_section = document_text[start_index:end_index].strip()
+            recommendations_section = recommendations_section.lower()
+            recommendations_section = remove_rationale(remove_outreach(recommendations_section))
+            comment_pattern = r'comment:.*? [a-z]\.'
+            cleaned_text = re.sub(comment_pattern, '', recommendations_section, flags=re.DOTALL)
+            extracted_sections[document_name] = recommendations_section
+            original_texts[document_name] = document_text
+        #1998 report (didnt have a part iv)
+        if start_index != -1 and end_index == -1:
+          #remove outreach, rationale, and comments sections using previously defined function
+            recommendations_section = document_text[start_index:len(document_text)].strip()
+            recommendations_section = recommendations_section.lower()
+            recommendations_section = remove_rationale(remove_outreach(recommendations_section))
+            comment_pattern = r'comment:.*? [a-z]\.'
+            cleaned_text = re.sub(comment_pattern, '', recommendations_section, flags=re.DOTALL)
+            extracted_sections[document_name] = recommendations_section
+            original_texts[document_name] = document_text
+    elif re.search(r'1998', document_name, re.IGNORECASE):
+      start_index = document_text.lower().find('part ii')  # Case-insensitive search
+      end_index = document_text.lower().find('part iii', start_index)  # Case-insensitive search
+      if start_index != -1 and end_index != -1:
+          recommendations_section = document_text[start_index:end_index].strip()
+          #remove members and outreach sections
+          recommendations_section = remove_members(recommendations_section)
+          recommendations_section = recommendations_section.lower()
+          extracted_sections[document_name] = recommendations_section
+          original_texts[document_name] = document_text
+    # Exception handling for reports from 2002 (wild year for this report)
+    elif '2002' in document_name:
+        # Process the 2002 report differently (e.g., extract sections between "Recommendations and Rationale" and "VA Response to Recommendations")
+        start_index = document_text.lower().find('recommendations and rationale')  # Case-insensitive search
+        end_index = document_text.lower().find('va response to recommendations', start_index)  # Case-insensitive search
+        if start_index != -1 and end_index != -1:
+            recommendations_section = document_text[start_index:end_index].strip()
+            recommendations_section = recommendations_section.lower()
+            extracted_sections[document_name] = recommendations_section
+            original_texts[document_name] = document_text
+
+    else:
+        # Find all matching headings in the document text for other files
+        headings = re.findall(pattern, document_text, re.IGNORECASE)
+
+        # Find the start and end index of the 'RECOMMENDATIONS' section for other files
+        start_index = None
+        end_index = None
+
+        for i, heading in enumerate(headings):
+            if ('recommendations' in heading.lower() and 'va response to recommendations' not in heading.lower()):  # Case-insensitive search
+                start_index = document_text.lower().find(heading.lower())  # Case-insensitive search
+                if i + 1 < len(headings):
+                    end_index = document_text.lower().find(headings[i + 1].lower())  # Case-insensitive search
+                recommendations_section = document_text[start_index:end_index].strip()
+                recommendations_section = recommendations_section.lower()
+                extracted_sections[document_name] = recommendations_section
+                original_texts[document_name] = document_text
+                break
+
 corpus = pd.DataFrame.from_dict(extracted_sections, orient='index', columns=['recommendations'])
 original_texts_df = pd.DataFrame.from_dict(original_texts, orient='index', columns=['original_text'])
 
