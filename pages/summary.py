@@ -189,4 +189,116 @@ def summarize_text(text):
 corpus['recommendations_summary'] = corpus['recommendations'].apply(summarize_text)
 corpus['orig_text_summary'] = corpus['original_text'].apply(summarize_text)
 
+
 st.dataframe(corpus)
+
+### PreProcess Text 
+
+#ingest dictionary workbook
+import csv
+
+words_dict = {}  # Initialize an empty dictionary
+
+# Open the CSV file using the with statement
+with open('words_dict.csv', 'r', encoding='utf-8', errors='replace') as csv_file:
+    csv_reader = csv.DictReader(csv_file)  # Use DictReader to read rows as dictionaries
+
+    for row in csv_reader:
+        # Assuming the CSV file has 'Title' and 'Meaning' columns
+        title = row['Title']
+        meaning = row['Meaning']
+        words_dict[title] = meaning  # Add the data to the dictionary
+
+
+#convert word dict dataframe to dictionary
+words_dict = {key.lower(): value for key, value in words_dict.items()}
+
+
+
+# create stopword list
+#create custom stop words vector for
+custom_stop_words = ['veteran','veterans' ,'woman',"women", 'va', 'committee', 'program', 'center', 'study', 'report', 'service', 'within',
+                   'include', 'provide', 'ensure', 'develop', 'must', 'need', 'level','department','administration','affairs','veterans benefits administration'
+                   ]
+
+# Default English stop words
+default_stop_words = set(CountVectorizer(stop_words="english").get_stop_words())
+
+# Combine default English stop words with custom stop words
+stop_words = list(default_stop_words) + custom_stop_words
+
+
+#function to preprocess the text
+def preprocess_text(text):
+
+    # Convert the text to lowercase
+    text = text.lower()
+
+    # Remove punctuation
+    my_punctuation = '”!"#$%&()*+,\'''/:;<=>?@[\\]’^_`{|}~“•'
+    text = text.translate(str.maketrans("", "", my_punctuation))
+
+    # Replace hyphens with spaces
+    text = text.replace("-", " ")
+
+    # Tokenize the text into words
+    words = word_tokenize(text)
+
+    # Remove stopwords
+    stop_words = set(stopwords.words("english"))
+    words = [word for word in words if word not in stop_words]
+
+    # Lemmatization
+    lemmatizer = WordNetLemmatizer()
+    words = [lemmatizer.lemmatize(word) for word in words]
+
+    # Rejoin the processed words into a single text
+    processed_text = " ".join(words)
+
+    # Lowercase the words
+    processed_text = processed_text.lower()
+
+    # Replace acronyms with
+
+    return processed_text
+
+#function to replace acronyms with plain text
+def replace_words(text, acronym_dict):
+    words = text.split()
+    replaced_words = [acronym_dict.get(word, word) for word in words]
+    replaced_text = ' '.join(replaced_words)
+    replaced_text = replaced_text.lower()
+    return replaced_text
+
+def spell_check_and_correct(input_text):
+    spell = SpellChecker()
+
+    # Split the text into words
+    words = input_text.split()
+
+    # Find misspelled words
+    misspelled = spell.unknown(words)
+
+    # Correct misspelled words and return corrected text
+    corrected_words = []
+    for word in words:
+        corrected_word = spell.correction(word)
+        if word in misspelled and corrected_word is not None and corrected_word != word:
+            corrected_words.append(corrected_word)
+        else:
+            corrected_words.append(word)
+
+    corrected_text = ' '.join(corrected_words)
+    return corrected_text
+
+
+preprocessed_text = []
+spell_checked_text = []
+translated_text = []
+
+[preprocessed_text.append(preprocess_text(i)) for i in corpus['recommendations']]
+[spell_checked_text.append(spell_check_and_correct(i)) for i in preprocessed_text]
+[translated_text.append(replace_words(item, words_dict)) for item in spell_checked_text]
+# List of words that should not be considered misspelled  #though document 10
+
+st.session_state['preprocessed_text'] = preprocessed_text
