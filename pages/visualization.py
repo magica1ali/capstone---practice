@@ -70,8 +70,8 @@ def spacyLayer(text,corpus):
 def datetime_layer(text):
     def extract_year(sentence):
     # Find the last four digits in the sentence
-    for i in range(len(sentence) - 4, -1, -1):
-        chunk = sentence[i:i+4]
+        for i in range(len(sentence) - 4, -1, -1):
+            chunk = sentence[i:i+4]
         if chunk.isdigit() and len(chunk) == 4:
             # Parse the last four characters as an integer
             year = int(chunk)
