@@ -99,7 +99,8 @@ def remove_members(text):
     else:
         return text
 
-st.session_state.documents = text_dict.items()
+documents = text_dict.items()
+st.session_state['documents'] = documents
 
 # Define a regular expression pattern to match section headings
 pattern = r'Part\s*[IVX]+\s+.*'  # Pattern to match headings like "PART I" or "PART II: Heading"
