@@ -136,6 +136,7 @@ for document_name, document_text in documents:
                 break
 
 corpus = pd.DataFrame.from_dict(extracted_sections, orient='index', columns=['recommendations'])
+st.session_state['corpus'] = corpus
 original_texts_df = pd.DataFrame.from_dict(original_texts, orient='index', columns=['original_text'])
 
 # Join the 'corpus' DataFrame onto the 'original_texts_df' DataFrame using the index
