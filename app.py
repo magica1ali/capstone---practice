@@ -34,6 +34,7 @@ st.title("Streamlit App with Preloaded Models")
 
 # Define variables
 text_dict = {}  # Initialize the dictionary to store text data
+st.session_state['text_dict'] = text_dict
 
 # Create a file uploader in your Streamlit app
 uploaded_files = st.file_uploader("Choose a PDF file", type='pdf', accept_multiple_files=True)
