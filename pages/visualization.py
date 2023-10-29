@@ -26,7 +26,7 @@ import spacy_streamlit
 import io
 
 # Preload the SpaCy model at app startup
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 
 #split text into sentences and add the document year to each sentence 
 @st.cache_data
