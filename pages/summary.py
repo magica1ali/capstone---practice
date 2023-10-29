@@ -29,7 +29,7 @@ import datetime
 
 extracted_sections = {}
 original_texts = {}
-
+@st.cache_data
 def remove_outreach(text):
     # Find the index of "Outreach" in the text
     outreach_index = text.lower().find("outreach")
@@ -40,7 +40,7 @@ def remove_outreach(text):
         return cleaned_text
     else:
         return text
-
+@st.cache_data
 def remove_rationale(text):
     # Define the regular expression pattern
     pattern = re.compile(r"rationale:(.*?)(comment:|$)", re.DOTALL)
@@ -49,7 +49,7 @@ def remove_rationale(text):
     text_without_rationale = re.sub(pattern, "comment:", text)
 
     return text_without_rationale
-
+@st.cache_data
 def remove_members(text):
     # Find the index of "Members" in the text
     members_index = text.lower().find("members")
@@ -143,6 +143,7 @@ original_texts_df = pd.DataFrame.from_dict(original_texts, orient='index', colum
 corpus = corpus.join(original_texts_df)
 
 # Function to remove specific words and patterns from a document
+@st.cache_data
 def remove_words_and_patterns(document, words_to_remove, patterns_to_remove):
     # Split the document into words
     words = document.split()
@@ -229,6 +230,7 @@ stop_words = list(default_stop_words) + custom_stop_words
 
 
 #function to preprocess the text
+@st.cache_data
 def preprocess_text(text):
 
     # Convert the text to lowercase
@@ -263,13 +265,14 @@ def preprocess_text(text):
     return processed_text
 
 #function to replace acronyms with plain text
+@st.cache_data
 def replace_words(text, acronym_dict):
     words = text.split()
     replaced_words = [acronym_dict.get(word, word) for word in words]
     replaced_text = ' '.join(replaced_words)
     replaced_text = replaced_text.lower()
     return replaced_text
-
+@st.cache_data
 def spell_check_and_correct(input_text):
     spell = SpellChecker()
 
