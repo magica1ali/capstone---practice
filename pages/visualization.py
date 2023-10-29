@@ -22,6 +22,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from spellchecker import SpellChecker
 import streamlit as st
+import spacy_streamlit
 import io
 
 # Preload the SpaCy model at app startup
