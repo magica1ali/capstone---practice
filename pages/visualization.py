@@ -23,6 +23,7 @@ from nltk.stem import PorterStemmer
 from spellchecker import SpellChecker
 import streamlit as st
 import io
+python -m spacy download en_core_web_lg
 
 # Preload the SpaCy model at app startup
 nlp = spacy.load("en_core_web_lg")
