@@ -1,5 +1,31 @@
 #Load Modules 
+import sys
+import os
 import pandas as pd
+import nltk
+from sklearn.feature_extraction.text import CountVectorizer
+import string
+import spacy
+from spacy.cli.download import download
+from transformers import LayoutLMv3FeatureExtractor, AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
+from PIL import Image
+import glob2
+import re
+import fitz
+import csv
+from gensim.corpora import Dictionary
+from gensim.models import LdaModel
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.stem import PorterStemmer
+from spellchecker import SpellChecker
+import streamlit as st
+import io
+import datetime 
+
+### Code 
 
 corpus = pd.DataFrame.from_dict(extracted_sections, orient='index', columns=['recommendations'])
 original_texts_df = pd.DataFrame.from_dict(original_texts, orient='index', columns=['original_text'])
